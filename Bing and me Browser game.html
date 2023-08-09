@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Platformer</title>
+    <style>
+        #game {
+            width: 400px;
+            height: 200px;
+            border: 1px solid black;
+            position: relative;
+            background-color: blue; /* changed background color to blue */
+        }
+        #player {
+            width: 20px;
+            height: 20px;
+            background-color: yellow; /* changed player color to yellow */
+            position: absolute;
+            bottom: 0;
+        }
+        #floor {
+            width: 100%;
+            height: 20px;
+            background-color: green; /* changed floor color to green */
+            position: absolute;
+            bottom: 0;
+        }
+        #pit {
+            width: 40px;
+            height: 20px;
+            background-color: white;
+            position: absolute;
+            bottom: 0;
+            left: 180px;
+        }
+        .cloud {
+            width: 40px;
+            height: 20px;
+            background-color: white; /* cloud color is white */
+            position: absolute;
+        }
+    </style>
+</head>
+<body>
+    <div id="game">
+        <div id="player"></div>
+        <div id="floor"></div>
+        <div id="pit"></div>
+        <div class="cloud" id="cloud1"></div> <!-- added first cloud -->
+        <div class="cloud" id="cloud2"></div> <!-- added second cloud -->
+    </div>
+
+    <script>
+        let player = document.querySelector("#player");
+        let game = document.querySelector("#game");
+        let floor = document.querySelector("#floor");
+        let pit = document.querySelector("#pit");
+        let cloud1 = document.querySelector("#cloud1"); /* added first cloud */
+        let cloud2 = document.querySelector("#cloud2"); /* added second cloud */
+
+        let playerX = 0;
+        let playerY = 0;
+
+        let jumping = false;
+
+        /* added code to move clouds across the screen */
+        let cloudX = game.offsetWidth - cloud1.offsetWidth; 
+        cloud1.style.top = "10px";
+        cloud1.style.left = cloudX + "px";
+        
+        cloud2.style.top = "10px";
+        cloud2.style.left = (cloudX + cloud1.offsetWidth) + "px";
+
+      setInterval(function() {
+          cloudX -= 1;
+          if (cloudX < -cloud2.offsetWidth) {
+              cloudX = game.offsetWidth - cloud1.offsetWidth;
+          }
+          cloud1.style.left = cloudX + "px";
+          cloud2.style.left = (cloudX + cloud1.offsetWidth) + "px";
+      }, 50);
+
+      /* end of added code */
+
+      document.addEventListener("keydown", function(event) {
+          if (event.key === "ArrowLeft") {
+              playerX -= 10; /* increased movement speed */
+              if (playerX < 0) playerX = 0;
+              player.style.left = playerX + "px";
+          } else if (event.key === "ArrowRight") {
+              playerX += 10; /* increased movement speed */
+              if (playerX > game.offsetWidth - player.offsetWidth) playerX = game.offsetWidth - player.offsetWidth;
+              player.style.left = playerX + "px";
+          } else if (event.key === "ArrowUp" && !jumping) {
+              jumping = true;
+              let jumpHeight = 120; /* increased jump height */
+
+              let jumpInterval = setInterval(function() {
+                  playerY += 10; /* increased jump speed */
+                  jumpHeight -= 10;
+
+                  if (jumpHeight <= 0) {
+                      clearInterval(jumpInterval);
+
+                      let fallInterval = setInterval(function() {
+                          playerY -= 10; /* increased fall speed */
+
+                          if (playerY <= floor.offsetHeight) {
+                              clearInterval(fallInterval);
+                              jumping = false;
+                              playerY = floor.offsetHeight
+                          }
+
+                          player.style.bottom = playerY + "px";
+                      }, 10);
+                  }
+
+                  player.style.bottom = playerY + "px";
+              }, 10);
+          }
+      });
+    </script>
+</body>
+</html>
